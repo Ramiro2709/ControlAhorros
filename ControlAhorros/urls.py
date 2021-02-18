@@ -26,4 +26,4 @@ urlpatterns = [
     
 ]
 
-#Test gitignore
+#Test gitignore 2
