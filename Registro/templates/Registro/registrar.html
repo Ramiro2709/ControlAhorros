@@ -1,0 +1,26 @@
+<html>
+<head>
+    <script> 
+        function tipoUpdate(){
+            //document.getElementById("id_subcat_origen").style.display = "none";
+        }
+    </script>
+</head>
+
+<body>
+    {{data}}
+    {%if cargado %}
+    <p style="color:green;"> Registro cargado  </p>
+    {% endif %}
+    <h1> Añadir Registro <h1> 
+    {%if form.errors %}
+    <p style="color:red;"> Error de campo  </p>
+    {% endif %}
+    <form action="" method="POST">{% csrf_token %}
+        <table>
+            {{form.as_table}}
+        </table>
+        <input type="submit" value="Enviar">
+    </form>
+</body>
+</html>
