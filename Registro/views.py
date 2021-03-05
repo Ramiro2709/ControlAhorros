@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from Registro.forms import FormRegistro
-from Registro.models import Log, Fondo
+from Registro.forms import FormRegistro,FormRegistroTrade
+from Registro.models import Log, Fondo, Log_Trade
 import decimal
 from utils.functions import testFunction #De carpeta de funciones, para agregar la obtencion de valor de las monedas, etc...
 from utils.functions import convertirMoneda
@@ -13,40 +13,72 @@ from PIL import Image
 def home(request):
     return render(request, "Registro/index.html")
 
-def registrar(request):
+def registrar(request,tipo):
     #return render(request, "Registro/registrar.html")
     #return HttpResponse("Registro")
     if (request.method=="POST"):
         ## Cuando ya cargo informacion
-        form = FormRegistro(request.POST)
+        if (tipo == "trade"): form = FormRegistroTrade(request.POST)
+        else: form = FormRegistro(request.POST)
         if (form.is_valid()):
             data = form.cleaned_data
             
+            # Si es un trade, carg aun trade
+            if (tipo == "trade"): 
+                nuevo_log = Log_Trade(**data)
+            else: 
+                nuevo_log = Log(**data)
+                
 
-            nuevo_log = Log(**data)
             #TODO actualizar valor de Bitcoin usando API
             moneda1 = nuevo_log.moneda_origen
-            monto = nuevo_log.monto_origen
-            sub = nuevo_log.subcat_dest
+            monto1 = nuevo_log.monto_origen
+            sub1 = nuevo_log.subcat_origen
+            pl_or = nuevo_log.plataforma_or
+            sub2 = nuevo_log.subcat_dest
             pl_des = nuevo_log.plataforma_des
+            if (tipo == "trade"):
+                moneda2 = nuevo_log.moneda_dest
+                monto2 = nuevo_log.monto_dest
 
             # Guarda log con su conversion
-            valorUSD = convertirMoneda(moneda1,"USD",monto)
+            valorUSD = convertirMoneda(moneda1,"USD",monto1)
             #print("Valor USD: %s" % valorUSD)
             nuevo_log.valorBTC = decimal.Decimal(2)
-            nuevo_log.valorDAI = decimal.Decimal(valorUSD)
+            nuevo_log.valorUSDC = decimal.Decimal(valorUSD)
+            
             nuevo_log.save()
 
-            #TODO Plataforma origen? destino?
-            fondoDest = Fondo.objects.filter(subcategoria=sub, moneda=moneda1, plataforma=pl_des).first()
+            #NOTE Si es un trade, suman la moneda destino, sino, la origen
+            if (tipo == "trade"):
+                moneda = moneda2
+                monto = monto2
+            else:
+                moneda = moneda1
+                monto = monto1
+
+            #NOTE Plataforma de origen, resta
+            
+            fondoOr = Fondo.objects.filter(subcategoria=sub1, moneda=moneda1, plataforma=pl_or).first()
+            if (fondoOr):
+                fondoOr.monto -= monto
+                # FIXME Si quedan fondos negativos? Dejar?
+            #else:
+                # FIXME Fondos no existen
+            fondoOr.save()
+
+
+
+            #NOTE Plataforma destino, suma
+            fondoDest = Fondo.objects.filter(subcategoria=sub2, moneda=moneda, plataforma=pl_des).first()
             if (fondoDest):
                 fondoDest.monto += monto
             else:
-                fondoDest = Fondo(subcategoria=sub,monto=monto,moneda=moneda1,plataforma=pl_des)
+                fondoDest = Fondo(subcategoria=sub2,monto=monto,moneda=moneda,plataforma=pl_des)
             fondoDest.save()
                 
-
-            form = FormRegistro()
+            if (tipo == "trade"): form = FormRegistroTrade()
+            else: form = FormRegistro()
             return render(request,"Registro/registrar.html",{"form":form, "cargado":True, "data":data })
             #return HttpResponse("Registro cargado")
         else:
@@ -56,7 +88,9 @@ def registrar(request):
             #return HttpResponse("Error form")
     else:
         ## Primera vez que se ingresa al formulario
-        form = FormRegistro()
+        if (tipo == "trade"): form = FormRegistroTrade()
+        else: form = FormRegistro()
+        #form = FormRegistroTrade()
     return render(request,"Registro/registrar.html",{"form":form})
 
 def ver_logs(request):

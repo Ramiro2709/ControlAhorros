@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from Registro.models import Categoria,Subcategoria,Moneda,Tipo_fondo,Plataforma
+from Registro.models import Categoria,Subcategoria,Moneda,Tipo_fondo,Plataforma,Tipo_log
 
 
 class CategoriaAdmin(admin.ModelAdmin):
@@ -17,6 +17,9 @@ class MonedaAdmin(admin.ModelAdmin):
 class PlataformaAdmin(admin.ModelAdmin):
     list_display=("nombre",)
 
+class Tipo_logAdmin(admin.ModelAdmin):
+    list_display=("tipo",)
+
 # Para guardar el modelo
 admin.site.register(Categoria, CategoriaAdmin)
 
@@ -27,3 +30,5 @@ admin.site.register(Moneda,MonedaAdmin)
 admin.site.register(Tipo_fondo)
 
 admin.site.register(Plataforma,PlataformaAdmin)
+
+admin.site.register(Tipo_log, Tipo_logAdmin)

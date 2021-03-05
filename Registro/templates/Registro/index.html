@@ -1,5 +1,11 @@
 
+<!--  LINK[epic=static]  cargar los static -->
+{% load static %}
 
-<button onclick="location.href = '/registro/registrar'">Registrar</button>
+<!--  LINK[epic=static]  usar static para cargar estilos -->
+<link rel="stylesheet" href="{% static 'Registro/style.css' %}">
+
+<button onclick="location.href = '/registro/registrar/transferir'">Registrar</button>
+<button onclick="location.href = '/registro/registrar/trade'">Registrar Trade</button>
 <button onclick="location.href = '/registro/ver_logs'">Ver Logs</button>
 <button onclick="location.href = '/registro/ver_fondos'">Ver Fondos</button>

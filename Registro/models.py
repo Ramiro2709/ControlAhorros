@@ -43,23 +43,38 @@ class Log(models.Model):
     fecha = models.DateTimeField()
     descripcion = models.CharField(max_length=100) 
     # LINK[epic=foreign] Foreign Key, para 1 a muchos
-    tipo = models.ForeignKey(
-        Tipo_log,
-        on_delete=models.CASCADE,
+    # tipo = models.ForeignKey(
+    #     Tipo_log,
+    #     on_delete=models.CASCADE,
 
-        choices=TIPO_REGISTRO,
-        default=1
-    )
+    #     choices=TIPO_REGISTRO,
+    #     default=1
+    # )
+    tipo = models.ForeignKey(Tipo_log,on_delete=models.CASCADE,null=True)
+    categoria_origen = models.ForeignKey(Categoria,on_delete=models.CASCADE, related_name='origen',null=True)
     subcat_origen = models.ForeignKey(Subcategoria,on_delete=models.CASCADE, related_name='origen',null=True)
+    categoria_dest = models.ForeignKey(Categoria,on_delete=models.CASCADE, related_name='destino',null=True)
     subcat_dest = models.ForeignKey(Subcategoria, on_delete=models.CASCADE, related_name='destino',null=True)
-    moneda_origen = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True)
+    moneda_origen = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, related_name='origen')
     monto_origen = models.DecimalField(max_digits=20, decimal_places=10)
     plataforma_or = models.ForeignKey(Plataforma, on_delete=models.CASCADE, related_name='origen' , null=True)
     plataforma_des = models.ForeignKey(Plataforma, on_delete=models.CASCADE, related_name='destino' , null=True)
-    valorDAI = models.DecimalField(max_digits=20, decimal_places=10)
-    valorBTC = models.DecimalField(max_digits=20, decimal_places=10)
+    valorUSDC = models.DecimalField(max_digits=20, decimal_places=10, null=True)
+    valorBTC = models.DecimalField(max_digits=20, decimal_places=10, null=True)
+    comision = models.DecimalField(max_digits=20, decimal_places=10, null=True)
+    porcentaje_fijo = models.BooleanField(null=True)
     def __str__(self):
-        return ' %s ; %s %s ; %s ; %s ; %s ; %s ; %s ; %s ; '% (self.fecha,self.descripcion,self.tipo,self.subcat_origen,self.subcat_dest,self.moneda_origen,self.monto_origen,self.valorBTC,self.valorDAI)
+        return ' %s ; %s %s ; %s ; %s ; %s ; %s ; %s ; %s ; %s ; %s ;'% (self.fecha,self.descripcion,self.tipo,self.subcat_origen,self.subcat_dest,self.moneda_origen,self.monto_origen,self.valorBTC,self.valorUSDC,self.plataforma_or,self.plataforma_des)
+
+# LINK[epic=inheritance] Heredacion de modelos, cada modelo como tabla independiente
+class Log_Trade(Log):
+    monto_dest = models.DecimalField(max_digits=20, decimal_places=10, null=True)
+    moneda_dest = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, related_name='destino')
+    precio = models.DecimalField(max_digits=20, decimal_places=10, null=True)
+    moneda_com = models.ForeignKey(Moneda, on_delete=models.CASCADE, null=True, related_name='comision')
+    # super + extension?
+    def __str__(self):
+        return ' %s ; %s %s ; %s ; %s ; %s ; %s ; %s ; %s ; %s ; %s ;'% (self.fecha,self.descripcion,self.tipo,self.subcat_origen,self.subcat_dest,self.moneda_origen,self.monto_origen,self.valorBTC,self.valorUSDC,self.plataforma_or,self.plataforma_des)
 
 class Tipo_fondo(models.Model):
     tipo = models.CharField(max_length=30) 
