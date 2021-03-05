@@ -5,6 +5,8 @@ from Registro.models import Log, Fondo, Log_Trade
 import decimal
 from utils.functions import testFunction #De carpeta de funciones, para agregar la obtencion de valor de las monedas, etc...
 from utils.functions import convertirMoneda
+from django.views.generic.edit import FormView
+from django.views.generic.base import TemplateView, View
 
 from PIL import Image
 
@@ -103,7 +105,32 @@ def ver_logs(request):
 
     return render(request, "Registro/ver_logs.html",{"logs":logs})
 
-def ver_fondos(request):
-    fondos = Fondo.objects.all()
 
-    return render(request, "Registro/ver_fondos.html", {"fondos":fondos})
+
+
+
+#class FormPartidos(FormView):
+#    template_name = 'configuracion/formularios/form_partidos.html'
+#    form_class = FormPartidos
+
+#LINK[epic=class_views]
+class VerFondos(TemplateView):
+    #fondos = Fondo.objects.all()
+    #NOTE Nombre del template que carga el view
+    template_name = 'Registro/ver_fondos.html'
+
+    #NOTE Funcion para setear el contexto (variables) del template
+    # *args : para enviar una lista de argumentos, de tamaño variable
+    # **kwargs: enviar un diccionario de argumentos con keywords
+    def get_context_data(self, **kwargs):
+        try:
+            context = super(VerFondos, self).get_context_data(**kwargs)
+            context['fondos'] = Fondo.objects.all()
+        except Exception as e:
+            print("Error al obtener datos de contexto.")
+            print(e)
+        return context
+
+#def ver_fondos(request):
+#    fondos = Fondo.objects.all()
+#   return render(request, "Registro/ver_fondos.html", {"fondos":fondos})
