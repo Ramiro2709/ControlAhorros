@@ -67,7 +67,7 @@ def registrar(request,tipo):
                 # FIXME Si quedan fondos negativos? Dejar?
             #else:
                 # FIXME Fondos no existen
-            fondoOr.save()
+                fondoOr.save()
 
 
 

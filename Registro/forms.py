@@ -4,15 +4,8 @@ import datetime
 
 class FormRegistro(forms.Form):
     fecha = forms.DateTimeField(initial=datetime.date.today)
+    tipo = forms.ModelChoiceField(queryset=Tipo_log.objects.all(), widget=forms.Select(attrs={'id' : 'select_tipo'}))
     descripcion = forms.CharField()
-
-    # tipo = forms.ModelChoiceField(
-    #     queryset = Tipo_log.objects.all(),
-    #     widget = forms.Select(attrs={"onChange":'tipoUpdate()'})
-    # )
-
-    tipo = forms.ModelChoiceField(queryset=Tipo_log.objects.all())
-    #subcat_origen = forms.Select(choices= Subcategoria.objects.all())
     categoria_origen = forms.ModelChoiceField(queryset=Categoria.objects.all())
     subcat_origen = forms.ModelChoiceField(queryset=Subcategoria.objects.all())
     categoria_dest = forms.ModelChoiceField(queryset=Categoria.objects.all())
